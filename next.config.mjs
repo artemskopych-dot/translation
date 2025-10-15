@@ -1,6 +1,6 @@
-/** @type {import('next').NextConfig} */
+﻿/** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',         // static export (no SSR)
-  images: { unoptimized: true }, // required if you use <Image/>
+  output: 'export',
+  images: { unoptimized: true },
 };
 export default nextConfig;
