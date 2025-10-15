@@ -1,0 +1,6 @@
+﻿node_modules/
+.next/
+out/
+.env*
+npm-debug.log*
+yarn.lock
