@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',           // ← це вмикає статичний export у Next 14
-  images: { unoptimized: true },
-  trailingSlash: true
+  output: 'export',         // static export (no SSR)
+  images: { unoptimized: true }, // required if you use <Image/>
 };
 export default nextConfig;
