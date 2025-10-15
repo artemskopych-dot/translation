@@ -1,18 +1,8 @@
-version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - npm ci
-    build:
-      commands:
-        - npx next telemetry disable
-        - npm run build           # ← більше НЕ next export
-  artifacts:
-    baseDirectory: out           # Next 14 з output:export кладе статику в out/
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - node_modules/**/*
-      - .next/cache/**/*
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",        // ← збираємо лише build
+    "start": "next start",
+    "export": "next build"        // ← на випадок, якщо amplify.yml викличе export
+  }
+}
