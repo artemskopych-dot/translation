@@ -9,19 +9,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const token = localStorage.getItem("auth_jwt");
-    // якщо НЕ на /login і немає токена → на логін
     if (pathname !== "/login" && !token) {
-      router.replace("/login");
-      return;
+      router.replace("/login"); return;
     }
-    // якщо на /login і токен вже є → на головну
     if (pathname === "/login" && token) {
-      router.replace("/");
-      return;
+      router.replace("/"); return;
     }
   }, [pathname, router]);
 
-  // жодного header тут — він є тільки на домашній сторінці
+  // ЖОДНОГО хедера тут. Хедер малюємо лише на головній сторінці (після логіну).
   return (
     <html lang="en">
       <body style={{ margin: 0 }}>{children}</body>
