@@ -52,5 +52,20 @@ export default function LoginPage() {
   );
 }
 
-const inputDark: React.CSSProperties = { background:"#1f2937", color:"#f3f4f6", padding:"10px 12px", border:"1px solid #374151", borderRadius:8, outline:"none" };
-const btnPrimary: React.CSSProperties = { padding:"10px 12px", border:"1px solid #3b82f6", background:"#3b82f6", color:"#fff", borderRadius:8, cursor:"pointer", borderRadius:8 };
+const inputDark: React.CSSProperties = {
+  background:"#1f2937",
+  color:"#f3f4f6",
+  padding:"10px 12px",
+  border:"1px solid #374151",
+  borderRadius:8,
+  outline:"none"
+};
+
+const btnPrimary: React.CSSProperties = {
+  padding:"10px 12px",
+  border:"1px solid #3b82f6",
+  background:"#3b82f6",
+  color:"#fff",
+  borderRadius:8,
+  cursor:"pointer"
+};
