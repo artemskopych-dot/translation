@@ -218,3 +218,23 @@ const uploadBox: React.CSSProperties = { padding:"12px", border:"1px dashed #9ca
 const btn: React.CSSProperties = { padding:"10px 16px", borderRadius:8, border:"1px solid #111827", background:"#111827", color:"white", cursor:"pointer" };
 const btnDisabled: React.CSSProperties = { ...btn, opacity:.5, cursor:"not-allowed" };
 const btnGhost: React.CSSProperties = { padding:"8px 12px", borderRadius:8, border:"1px solid #e5e7eb", background:"white", cursor:"pointer" };
+const menu: React.CSSProperties = {
+  position:"absolute",
+  top:"110%",
+  left:0,
+  background:"white",
+  border:"1px solid #e5e7eb",
+  borderRadius:8,
+  boxShadow:"0 8px 24px rgba(0,0,0,.12)",
+  padding:4,
+  width:"100%",
+  maxHeight:220,
+  overflowY:"auto",
+  zIndex:50
+};
+
+const menuItem: React.CSSProperties = {
+  padding:"8px 10px",
+  borderRadius:6,
+  cursor:"pointer"
+};
