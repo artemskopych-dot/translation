@@ -6,6 +6,7 @@ type Project = { id: string; name: string; lang: string; desc: string; codeCol: 
 export default function HomePage() {
   // якщо не залогінений — на /login
   useEffect(()=>{
+    if (typeof window === "undefined") return;
     const t = localStorage.getItem("auth_jwt");
     if(!t){ window.location.href = "/login"; }
   },[]);
@@ -42,18 +43,27 @@ export default function HomePage() {
     return ()=>document.removeEventListener("click", onClickOutside);
   },[]);
 
-  // demo-проєкти у localStorage
-  const [projects, setProjects] = useState<Project[]>(
-    () => JSON.parse(localStorage.getItem("projects")||"[]")
-  );
-  function saveProjects(list: Project[]){
+  // projects — НЕ читаємо з localStorage під час SSR
+  const [projects, setProjects] = useState<Project[]>([]);
+  useEffect(()=>{
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem("projects");
+      setProjects(raw ? JSON.parse(raw) : []);
+    } catch {
+      setProjects([]);
+    }
+  },[]);
+  const saveProjects = (list: Project[]) => {
     setProjects(list);
-    localStorage.setItem("projects", JSON.stringify(list));
-  }
+    if (typeof window !== "undefined") {
+      localStorage.setItem("projects", JSON.stringify(list));
+    }
+  };
 
   function onStart(){
     if(!isValid) return;
-    const id = crypto.randomUUID();
+    const id = (globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2));
     const p: Project = { id, name: projectName, lang: language, desc, codeCol, origLangCol };
     const next = [p, ...projects];
     saveProjects(next);
@@ -71,7 +81,7 @@ export default function HomePage() {
         <img src="/Novicore_Logo.svg" alt="Logo" style={{height:36}}/>
         <h1 style={{fontSize:20, fontWeight:600}}>Novicore Translation</h1>
         <div style={{marginLeft:"auto"}}>
-          <button onClick={()=>{ localStorage.removeItem("auth_jwt"); window.location.href="/login"; }} style={btnGhost}>
+          <button onClick={()=>{ if(typeof window!=="undefined"){ localStorage.removeItem("auth_jwt"); } window.location.href="/login"; }} style={btnGhost}>
             Вийти
           </button>
         </div>
@@ -218,6 +228,7 @@ const uploadBox: React.CSSProperties = { padding:"12px", border:"1px dashed #9ca
 const btn: React.CSSProperties = { padding:"10px 16px", borderRadius:8, border:"1px solid #111827", background:"#111827", color:"white", cursor:"pointer" };
 const btnDisabled: React.CSSProperties = { ...btn, opacity:.5, cursor:"not-allowed" };
 const btnGhost: React.CSSProperties = { padding:"8px 12px", borderRadius:8, border:"1px solid #e5e7eb", background:"white", cursor:"pointer" };
+
 const menu: React.CSSProperties = {
   position:"absolute",
   top:"110%",
