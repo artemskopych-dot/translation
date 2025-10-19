@@ -21,7 +21,6 @@ const baseInput: React.CSSProperties = { width:"100%", padding:"10px 12px", bord
 const textarea: React.CSSProperties = { ...baseInput, minHeight:120, resize:"vertical" };
 const row3: React.CSSProperties = { display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:20, alignItems:"start" };
 const row2: React.CSSProperties = { display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, alignItems:"start" };
-const helpIcon: React.CSSProperties = { display:"inline-flex", alignItems:"center", justifyContent:"center", width:22, height:22, fontWeight:700, borderRadius:"50%", background:"#1f2937", border:"1px solid #374151", color:"#9ca3af", cursor:"default" };
 const field: React.CSSProperties = { display:"grid", gap:6 };
 const actions: React.CSSProperties = { display:"flex", justifyContent:"flex-end", marginTop:8 };
 const btnPrimary: React.CSSProperties = { padding:"10px 12px", border:"1px solid #3b82f6", background:"#3b82f6", color:"#fff", borderRadius:8, cursor:"pointer" };
@@ -29,9 +28,16 @@ const logoutBtn: React.CSSProperties = { ...btnPrimary, background:"#ef4444", bo
 const invalidBorder: React.CSSProperties = { borderColor:"#ef4444", boxShadow:"0 0 0 1px #ef4444 inset" };
 const errorText: React.CSSProperties = { color:"#fca5a5", fontSize:12, marginTop:4 };
 
-const dropdownWrap: React.CSSProperties = { position:"relative" };
 const menu: React.CSSProperties = { position:"absolute", zIndex:20, top:"calc(100% + 6px)", left:0, width:"100%", background:"#0b1220", border:"1px solid #1f2937", borderRadius:10, boxShadow:"0 6px 18px rgba(0,0,0,.35)", maxHeight:240, overflowY:"auto", boxSizing:"border-box" };
 const menuItem: React.CSSProperties = { padding:"10px 12px", borderBottom:"1px solid #111827", cursor:"pointer" };
+
+const helpWrap: React.CSSProperties = { position:"relative", display:"inline-block" };
+const helpIcon: React.CSSProperties = { display:"inline-flex", alignItems:"center", justifyContent:"center", width:22, height:22, fontWeight:700, borderRadius:"50%", background:"#1f2937", border:"1px solid #374151", color:"#9ca3af", cursor:"default" };
+const helpImgBase: React.CSSProperties = {
+  position:"absolute", top:"calc(100% + 8px)", right:0,
+  width:380, maxWidth:"min(380px, 70vw)",
+  border:"1px solid #1f2937", borderRadius:8, boxShadow:"0 6px 18px rgba(0,0,0,.35)"
+};
 
 const languages = [
   { id:"en", name:"English" },
@@ -55,10 +61,14 @@ export default function HomeClient() {
   const [codeIdCol, setCodeIdCol] = useState("");
   const [origLangIdCol, setOrigLangIdCol] = useState("");
 
+  // help popovers
+  const [showHelp1, setShowHelp1] = useState(false);
+  const [showHelp2, setShowHelp2] = useState(false);
+
   // помилки
   const [errors, setErrors] = useState<{[k:string]:boolean}>({});
 
-  // клік поза дропдауном
+  // дропдавн поза кліком
   const ddRef = useRef<HTMLDivElement|null>(null);
   useEffect(() => {
     function onDoc(e: MouseEvent) {
@@ -74,6 +84,9 @@ export default function HomeClient() {
     setFileName(f ? f.name : "");
   };
 
+  const truncate = (name:string, max=28) =>
+    name.length <= max ? name : name.slice(0, max-10) + "…" + name.slice(-9);
+
   const validate = () => {
     const next: {[k:string]:boolean} = {};
     next.projectName = projectName.trim() === "";
@@ -88,19 +101,16 @@ export default function HomeClient() {
 
   const onStart = () => {
     if (!validate()) {
-      // Скролимо до першого невалідного поля
-      const id = ["projectName","fileName","language","description","codeIdCol","origLangIdCol"].find(k => (errors as any)[k] || false);
-      if (id) {
-        const el = document.querySelector(`[data-field="${id}"]`) as HTMLElement | null;
+      const firstInvalid = ["projectName","fileName","language","description","codeIdCol","origLangIdCol"].find(k => (errors as any)[k] || false);
+      if (firstInvalid) {
+        const el = document.querySelector(`[data-field="${firstInvalid}"]`) as HTMLElement | null;
         el?.scrollIntoView({ behavior:"smooth", block:"center" });
       }
       return;
     }
-    // TODO: сабміт (поки лише демо)
     alert("OK! Дані валідні, можна відправляти на бекенд.");
   };
 
-  // спільні стилі інпутів + невалідний стан
   const i = (invalid?: boolean): React.CSSProperties => ({ ...baseInput, ...(invalid ? invalidBorder : {}) });
 
   return (
@@ -117,7 +127,6 @@ export default function HomeClient() {
         <button
           onClick={() => { localStorage.removeItem("auth_jwt"); window.location.href="/login"; }}
           style={logoutBtn}
-          aria-label="Log out"
         >
           Logout
         </button>
@@ -141,20 +150,29 @@ export default function HomeClient() {
                   {errors.projectName && <div style={errorText}>Вкажіть назву проєкту</div>}
                 </div>
 
-                {/* Upload file (кастомний) */}
+                {/* Upload file — лише кнопка, назва файлу в ній */}
                 <div style={field} data-field="fileName">
                   <label style={label}>Upload file</label>
-                  <div style={{display:"flex", gap:10}}>
-                    <button type="button" style={btnPrimary} onClick={onChooseFile}>Choose file</button>
-                    <div style={{...i(errors.fileName), padding:"10px 12px", display:"flex", alignItems:"center"}}>
-                      {fileName || "Файл не вибрано"}
-                    </div>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={onChooseFile}
+                    style={{
+                      ...btnPrimary,
+                      width:"100%",
+                      display:"flex",
+                      alignItems:"center",
+                      justifyContent:"space-between",
+                      ...(errors.fileName ? { borderColor:"#ef4444", background:"#ef4444" } : {})
+                    }}
+                  >
+                    <span>{fileName ? truncate(fileName) : "Choose file"}</span>
+                    <span style={{opacity:.85}} aria-hidden>📎</span>
+                  </button>
                   <input ref={fileRef} type="file" style={{display:"none"}} onChange={onFileChange} />
                   {errors.fileName && <div style={errorText}>Оберіть файл</div>}
                 </div>
 
-                {/* Languages (інпут + меню) */}
+                {/* Languages */}
                 <div style={{...field, position:"relative"}} ref={ddRef} data-field="language">
                   <label style={label}>Select the translation languages</label>
                   <input
@@ -193,13 +211,22 @@ export default function HomeClient() {
                 {errors.description && <div style={errorText}>Заповніть опис</div>}
               </div>
 
-              {/* Ряд 2: 2 колонки */}
+              {/* Ряд 2: 2 колонки з ? і картинкою на hover */}
               <div style={row2}>
                 {/* code Id */}
                 <div style={field} data-field="codeIdCol">
                   <div style={{display:"flex", alignItems:"center", justifyContent:"space-between"}}>
                     <label style={label}>File mapping — Copy “code Id” column name here</label>
-                    <span title="Подивись приклад на зображенні" style={helpIcon}>?</span>
+                    <span
+                      style={helpWrap}
+                      onMouseEnter={() => setShowHelp1(true)}
+                      onMouseLeave={() => setShowHelp1(false)}
+                    >
+                      <span style={helpIcon}>?</span>
+                      {showHelp1 && (
+                        <img src="/help.png" alt="help" style={helpImgBase} />
+                      )}
+                    </span>
                   </div>
                   <input
                     style={i(errors.codeIdCol)}
@@ -214,7 +241,16 @@ export default function HomeClient() {
                 <div style={field} data-field="origLangIdCol">
                   <div style={{display:"flex", alignItems:"center", justifyContent:"space-between"}}>
                     <label style={label}>Copy “original language id” column…</label>
-                    <span title="Подивись приклад на зображенні" style={helpIcon}>?</span>
+                    <span
+                      style={helpWrap}
+                      onMouseEnter={() => setShowHelp2(true)}
+                      onMouseLeave={() => setShowHelp2(false)}
+                    >
+                      <span style={helpIcon}>?</span>
+                      {showHelp2 && (
+                        <img src="/help.png" alt="help" style={helpImgBase} />
+                      )}
+                    </span>
                   </div>
                   <input
                     style={i(errors.origLangIdCol)}
