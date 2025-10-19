@@ -4,12 +4,23 @@ import { useEffect, useMemo, useRef, useState } from "react";
 type Project = { id: string; name: string; lang: string; desc: string; codeCol: string; origLangCol: string };
 
 export default function HomePage() {
-  // якщо не залогінений — на /login
+  const [ready,setReady] = useState(false);
+  const [authed,setAuthed] = useState(false);
+
+  // Перевірка токена ще ДО рендера контенту, щоб не мигтіли вкладки
   useEffect(()=>{
     if (typeof window === "undefined") return;
     const t = localStorage.getItem("auth_jwt");
-    if(!t){ window.location.href = "/login"; }
+    if (!t) {
+      window.location.replace("/login");
+      return;
+    }
+    setAuthed(true);
+    setReady(true);
   },[]);
+
+  if (!ready) return null;     // нічого не показуємо, поки не перевірили
+  if (!authed) return null;    // fallback
 
   const [tab,setTab] = useState<"translation"|"review">("translation");
 
@@ -43,16 +54,12 @@ export default function HomePage() {
     return ()=>document.removeEventListener("click", onClickOutside);
   },[]);
 
-  // projects — НЕ читаємо з localStorage під час SSR
+  // projects — читаємо після маунта (щоб не ламати SSR)
   const [projects, setProjects] = useState<Project[]>([]);
   useEffect(()=>{
     if (typeof window === "undefined") return;
-    try {
-      const raw = localStorage.getItem("projects");
-      setProjects(raw ? JSON.parse(raw) : []);
-    } catch {
-      setProjects([]);
-    }
+    try { setProjects(JSON.parse(localStorage.getItem("projects")||"[]")); }
+    catch { setProjects([]); }
   },[]);
   const saveProjects = (list: Project[]) => {
     setProjects(list);
