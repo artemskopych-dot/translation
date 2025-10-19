@@ -1,22 +1,30 @@
-import './globals.css'
-import Logo from '@/components/Logo'
-import Nav from '@/components/Nav'
-import { ReactNode } from 'react'
+﻿"use client";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
-export const metadata = { title: 'Novicore Translate', description: 'Batch translation pipeline UI' }
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const token = localStorage.getItem("auth_jwt");
+    // якщо НЕ на /login і немає токена → на логін
+    if (pathname !== "/login" && !token) {
+      router.replace("/login");
+      return;
+    }
+    // якщо на /login і токен вже є → на головну
+    if (pathname === "/login" && token) {
+      router.replace("/");
+      return;
+    }
+  }, [pathname, router]);
+
+  // жодного header тут — він є тільки на домашній сторінці
   return (
     <html lang="en">
-      <body>
-        <header className="border-b border-white/10">
-          <div className="container flex items-center justify-between py-4">
-            <a href="/" className="flex items-center gap-3"><Logo /></a>
-            <Nav />
-          </div>
-        </header>
-        <main className="container py-8">{children}</main>
-      </body>
+      <body style={{ margin: 0 }}>{children}</body>
     </html>
-  )
+  );
 }
