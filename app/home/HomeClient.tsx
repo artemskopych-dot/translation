@@ -49,6 +49,7 @@ const languages = [
 ];
 
 export default function HomeClient() {
+  const [selectedLangs, setSelectedLangs] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<"translation"|"review">("translation");
 
   // поля
@@ -284,3 +285,4 @@ export default function HomeClient() {
     </div>
   );
 }
+
