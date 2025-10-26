@@ -49,7 +49,7 @@ const languages = [
 
 export default function HomeClient() {
   const [selectedLangs, setSelectedLangs] = useState<string[]>([]);
-const [activeTab, setActiveTab] = useState<"translation"|"review">("translation");
+  const [activeTab, setActiveTab] = useState<"translation"|"review">("translation");
 
   // поля
   const [projectName, setProjectName] = useState("");
@@ -260,6 +260,7 @@ const [activeTab, setActiveTab] = useState<"translation"|"review">("translation"
     </div>
   );
 }
+
 
 
 
