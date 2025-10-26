@@ -27,9 +27,14 @@ const chip: React.CSSProperties = {
   border:"1px solid #374151", borderRadius:16,
   padding:"4px 10px", fontSize:12, display:"inline-flex", gap:8, alignItems:"center"
 };
-const item = (active:boolean): React.CSSProperties => ({
+const row = (active:boolean): React.CSSProperties => ({
   display:"flex", alignItems:"center", gap:10, padding:"8px 10px",
   cursor:"pointer", background: active ? "#111827" : "transparent", borderRadius:6, color:"#e5e7eb"
+});
+const tickBox = (active:boolean): React.CSSProperties => ({
+  width:18, height:18, border:"1px solid #374151", borderRadius:4,
+  display:"inline-flex", alignItems:"center", justifyContent:"center",
+  background: active ? "#2563eb" : "transparent", color:"#fff", fontSize:12, lineHeight:1
 });
 const btn: React.CSSProperties = { padding:"8px 12px", background:"#3b82f6", color:"#fff", border:"1px solid #3b82f6", borderRadius:8, cursor:"pointer" };
 
@@ -45,9 +50,11 @@ const LANGS = [
 
 export default function MultiLangSelect({ selected, setSelected, error }: Props) {
   const [open, setOpen] = React.useState(false);
+
   const toggle = (id: string) =>
     setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
+  // показуємо в інпуті підписи через кому
   const label = selected.length
     ? selected.map(id => LANGS.find(l => l.id === id)?.label ?? id).join(", ")
     : "";
@@ -65,6 +72,7 @@ export default function MultiLangSelect({ selected, setSelected, error }: Props)
         value={label}
       />
 
+      {/* чіпси вибраних мов під інпутом */}
       {selected.length > 0 && (
         <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
           {selected.map(id => {
@@ -72,10 +80,11 @@ export default function MultiLangSelect({ selected, setSelected, error }: Props)
             return (
               <span key={id} style={chip}>
                 {l}
-                <button type="button"
-                        onClick={() => toggle(id)}
-                        aria-label={`Remove ${l}`}
-                        style={{ background:"transparent", color:"#9ca3af", border:"none", cursor:"pointer", fontSize:14, lineHeight:1 }}>
+                <button
+                  type="button"
+                  onClick={() => toggle(id)}
+                  aria-label={`Remove ${l}`}
+                  style={{ background:"transparent", color:"#9ca3af", border:"none", cursor:"pointer", fontSize:14, lineHeight:1 }}>
                   ×
                 </button>
               </span>
@@ -84,13 +93,14 @@ export default function MultiLangSelect({ selected, setSelected, error }: Props)
         </div>
       )}
 
+      {/* випадаюче меню — не закривається на клік, лише кнопкою Done або повторним кліком по інпуту */}
       {open && (
-        <div style={menuWrap} onMouseLeave={() => setOpen(false)}>
+        <div style={menuWrap}>
           {LANGS.map(l => {
             const active = selected.includes(l.id);
             return (
-              <div key={l.id} onClick={() => toggle(l.id)} style={item(active)}>
-                <input type="checkbox" readOnly checked={active} />
+              <div key={l.id} onClick={() => toggle(l.id)} style={row(active)}>
+                <span style={tickBox(active)}>{active ? "✓" : ""}</span>
                 <span>{l.label}</span>
               </div>
             );
