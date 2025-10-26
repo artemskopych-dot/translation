@@ -1,7 +1,5 @@
 ﻿"use client";
 import MultiLangSelect from "../components/MultiLangSelect";
-import React, { useEffect, useRef, useState } from "react";
-
 const wrap: React.CSSProperties = { minHeight:"100vh", background:"#0b0f1a", color:"#e5e7eb", boxSizing:"border-box" };
 const header: React.CSSProperties = { display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 20px", borderBottom:"1px solid #111827" };
 const logoRow: React.CSSProperties = { display:"flex", alignItems:"center", gap:12 };
@@ -176,33 +174,9 @@ const [activeTab, setActiveTab] = useState<"translation"|"review">("translation"
 
                 {/* Languages */}
                 <div style={{...field, position:"relative"}} ref={ddRef} data-field="language">
-                  <label style={label}>Select the translation languages</label>
-                  <input
-                    style={i(errors.language)}
-                    placeholder="Click to choose…"
-                    readOnly
-                    value={language ? (languages.find(l=>l.id===language)?.name ?? "") : ""}
-                    onClick={() => setOpenLang(v=>!v)}
-                  />
-                  {openLang && (
-                    <div style={menu}>
-                      {languages.map(l => (
-                        <div
-                          key={l.id}
-                          style={menuItem}
-                          onClick={() => { setLanguage(l.id); setOpenLang(false); }}
-                        >
-                          {l.name}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {errors.language && <div style={errorText}>Оберіть мову</div>}
-                </div>
-              </div>
-
-              {/* Опис гри */}
-              <div style={field} data-field="description">
+                  <label style={{display:"block",marginBottom:8}}>Select the translation languages</label>
+<MultiLangSelect selected={selectedLangs} setSelected={setSelectedLangs} />
+<input type="hidden" name="language" value={selectedLangs.join(",")} />
                 <label style={label}>Enter a description of the game with its characteristics and age restrictions.</label>
                 <textarea
                   style={textarea}
@@ -286,6 +260,7 @@ const [activeTab, setActiveTab] = useState<"translation"|"review">("translation"
     </div>
   );
 }
+
 
 
 
