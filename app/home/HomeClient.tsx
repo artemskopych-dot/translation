@@ -50,6 +50,7 @@ const languages = [
 ];
 
 export default function HomeClient() {
+  const [selectedLangs, setSelectedLangs] = React.useState<string[]>([]);
   const [selectedLangs, setSelectedLangs] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<"translation"|"review">("translation");
 
@@ -286,5 +287,6 @@ export default function HomeClient() {
     </div>
   );
 }
+
 
 

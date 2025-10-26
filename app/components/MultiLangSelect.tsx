@@ -54,7 +54,6 @@ export default function MultiLangSelect({ selected, setSelected, error }: Props)
   const toggle = (id: string) =>
     setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
-  // показуємо в інпуті підписи через кому
   const label = selected.length
     ? selected.map(id => LANGS.find(l => l.id === id)?.label ?? id).join(", ")
     : "";
@@ -72,7 +71,6 @@ export default function MultiLangSelect({ selected, setSelected, error }: Props)
         value={label}
       />
 
-      {/* чіпси вибраних мов під інпутом */}
       {selected.length > 0 && (
         <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
           {selected.map(id => {
@@ -93,7 +91,6 @@ export default function MultiLangSelect({ selected, setSelected, error }: Props)
         </div>
       )}
 
-      {/* випадаюче меню — не закривається на клік, лише кнопкою Done або повторним кліком по інпуту */}
       {open && (
         <div style={menuWrap}>
           {LANGS.map(l => {
