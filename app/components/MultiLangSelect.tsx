@@ -1,5 +1,4 @@
 ﻿"use client";
-
 import React from "react";
 
 type Props = {
@@ -10,8 +9,13 @@ type Props = {
 
 const box: React.CSSProperties = { display:"flex", flexDirection:"column", gap:8, position:"relative" };
 const inputStyle = (err?: boolean): React.CSSProperties => ({
-  background:"#0b1220", color:"#e5e7eb", padding:"10px 12px",
-  border:1px solid , borderRadius:8, outline:"none", cursor:"pointer"
+  background:"#0b1220",
+  color:"#e5e7eb",
+  padding:"10px 12px",
+  border: `1px solid ${err ? "#ef4444" : "#1f2937"}`,
+  borderRadius: 8,
+  outline: "none",
+  cursor: "pointer"
 });
 const menuWrap: React.CSSProperties = {
   position:"absolute", top:44, left:0, background:"#0b1220",
@@ -41,7 +45,6 @@ const LANGS = [
 
 export default function MultiLangSelect({ selected, setSelected, error }: Props) {
   const [open, setOpen] = React.useState(false);
-
   const toggle = (id: string) =>
     setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
@@ -71,7 +74,7 @@ export default function MultiLangSelect({ selected, setSelected, error }: Props)
                 {l}
                 <button type="button"
                         onClick={() => toggle(id)}
-                        aria-label={Remove }
+                        aria-label={`Remove ${l}`}
                         style={{ background:"transparent", color:"#9ca3af", border:"none", cursor:"pointer", fontSize:14, lineHeight:1 }}>
                   ×
                 </button>
