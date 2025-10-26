@@ -1,4 +1,5 @@
-﻿import MultiLangSelect from "../components/MultiLangSelect";
+﻿import { useState } from "react";
+import MultiLangSelect from "../components/MultiLangSelect";
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -50,9 +51,10 @@ const languages = [
 ];
 
 export default function HomeClient() {
-  const [selectedLangs, setSelectedLangs] = React.useState<string[]>([]);
   
-  const [activeTab, setActiveTab] = useState<"translation"|"review">("translation");
+  
+  const [selectedLangs, setSelectedLangs] = useState<string[]>([]);
+const [activeTab, setActiveTab] = useState<"translation"|"review">("translation");
 
   // поля
   const [projectName, setProjectName] = useState("");
@@ -287,6 +289,7 @@ export default function HomeClient() {
     </div>
   );
 }
+
 
 
 
