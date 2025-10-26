@@ -1,6 +1,5 @@
-﻿import { useState } from "react";
+﻿"use client";
 import MultiLangSelect from "../components/MultiLangSelect";
-"use client";
 import React, { useEffect, useRef, useState } from "react";
 
 const wrap: React.CSSProperties = { minHeight:"100vh", background:"#0b0f1a", color:"#e5e7eb", boxSizing:"border-box" };
@@ -51,8 +50,6 @@ const languages = [
 ];
 
 export default function HomeClient() {
-  
-  
   const [selectedLangs, setSelectedLangs] = useState<string[]>([]);
 const [activeTab, setActiveTab] = useState<"translation"|"review">("translation");
 
@@ -289,6 +286,7 @@ const [activeTab, setActiveTab] = useState<"translation"|"review">("translation"
     </div>
   );
 }
+
 
 
 
