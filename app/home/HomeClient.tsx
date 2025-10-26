@@ -25,17 +25,20 @@ const btnTab = (active:boolean): React.CSSProperties => ({
   background: active ? "#111827" : "transparent", color:"#e5e7eb", cursor:"pointer"
 });
 
-function HelpHover({ src, alt = "help" }: { src: string; alt?: string }) {
-  const wrap: React.CSSProperties = { position:"relative", display:"inline-block" };
-  const q: React.CSSProperties    = { width:22, height:22, border:"1px solid #1f2937", borderRadius:9999, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:12, color:"#9CA3AF", cursor:"pointer", background:"#0b1220" };
-  const img: React.CSSProperties  = { position:"absolute", top:"120%", left:0, display:"none", background:"#000", border:"1px solid #1f2937", borderRadius:8, padding:6, zIndex:50, maxWidth:360 };
+function HelpPopover({ src="/help.png", alt="help", width=360 }: { src?: string; alt?: string; width?: number }) {
+  const [open, setOpen] = useState(false);
+  const w: React.CSSProperties   = { position:"relative", display:"inline-block" };
+  const q: React.CSSProperties   = { width:22, height:22, border:"1px solid #1f2937", borderRadius:9999, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:12, color:"#9CA3AF", cursor:"pointer", background:"#0b1220" };
+  const pop: React.CSSProperties = { position:"absolute", top:"120%", left:0, background:"#000", border:"1px solid #1f2937", borderRadius:8, padding:6, zIndex:100, boxShadow:"0 10px 25px rgba(0,0,0,.5)" };
+  const img: React.CSSProperties = { display:"block", maxWidth: width, height:"auto", borderRadius:6 };
   return (
-    <span style={wrap} className="help-hover">
+    <span style={w} onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}>
       <span style={q}>?</span>
-      <img src={src} alt={alt} style={img} />
-      <style jsx>{`
-        .help-hover:hover img { display: block; }
-      `}</style>
+      {open && (
+        <div style={pop}>
+          <img src={src} alt={alt} style={img} />
+        </div>
+      )}
     </span>
   );
 }
@@ -74,10 +77,8 @@ export default function HomeClient() {
     if (!desc.trim())        next.desc = "Required";
     if (!codeIdCol.trim())   next.codeId = "Required";
     if (!origLangCol.trim()) next.origLang = "Required";
-
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-
     setActiveTab("review");
   }
 
@@ -98,7 +99,7 @@ export default function HomeClient() {
         {activeTab === "translation" && (
           <form onSubmit={onStart} style={card}>
 
-            {/* Ряд 1: Project / Upload / Languages */}
+            {/* Ряд 1 */}
             <div style={row3}>
               <div style={col}>
                 <label style={label}>Enter the project name</label>
@@ -153,7 +154,7 @@ export default function HomeClient() {
 
             <div style={{height:20}} />
 
-            {/* Ряд 2: мапінги + "?" з картинкою по hover */}
+            {/* Ряд 2 з «?» — ОБИДВА однакові */}
             <div style={row2}>
               <div style={col}>
                 <label style={label}>File mapping — Copy “code Id” column name here</label>
@@ -164,7 +165,7 @@ export default function HomeClient() {
                     value={codeIdCol}
                     onChange={(e)=>setCodeIdCol(e.target.value)}
                   />
-                  <HelpHover src="/Без імені1111111 (1).png" />
+                  <HelpPopover src="/help.png" />
                 </div>
                 {errors.codeId && <div style={errText}>Required</div>}
               </div>
@@ -178,7 +179,7 @@ export default function HomeClient() {
                     value={origLangCol}
                     onChange={(e)=>setOrigLangCol(e.target.value)}
                   />
-                  <HelpHover src="/Без імені1111111 (1).png" />
+                  <HelpPopover src="/help.png" />
                 </div>
                 {errors.origLang && <div style={errText}>Required</div>}
               </div>
