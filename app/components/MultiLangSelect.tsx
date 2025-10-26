@@ -1,114 +1,154 @@
 ﻿"use client";
 import React from "react";
 
+type Lang = { id: string; label: string };
+
+const LANGS: Lang[] = [
+  { id: "es", label: "Español" },
+  { id: "en", label: "English" },
+  { id: "de", label: "Deutsch" },
+  { id: "fr", label: "Français" },
+  { id: "it", label: "Italiano" },
+  { id: "pl", label: "Polski" },
+  { id: "uk", label: "Українська" },
+  { id: "ru", label: "Русский" },
+];
+
 type Props = {
   selected: string[];
-  setSelected: React.Dispatch<React.SetStateAction<string[]>>;
-  error?: boolean;
+  setSelected: (v: string[]) => void;
+  error?: string;
 };
 
-const box: React.CSSProperties = { display:"flex", flexDirection:"column", gap:8, position:"relative" };
-const inputStyle = (err?: boolean): React.CSSProperties => ({
-  background:"#0b1220",
-  color:"#e5e7eb",
-  padding:"10px 12px",
-  border: `1px solid ${err ? "#ef4444" : "#1f2937"}`,
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  marginBottom: 8,
+};
+
+const btnStyle = (err?: boolean): React.CSSProperties => ({
+  width: "100%",
+  textAlign: "left",
+  background: "#0b1220",
+  color: "#e5e7eb",
+  padding: "10px 12px",
+  border: err ? "1px solid #ef4444" : "1px solid #374151",
   borderRadius: 8,
   outline: "none",
-  cursor: "pointer"
+  cursor: "pointer",
 });
-const menuWrap: React.CSSProperties = {
-  position:"absolute", top:44, left:0, background:"#0b1220",
-  border:"1px solid #1f2937", borderRadius:8, padding:6,
-  boxShadow:"0 10px 30px rgba(0,0,0,.35)", zIndex:50, width:320, maxHeight:280, overflowY:"auto"
-};
-const chip: React.CSSProperties = {
-  background:"#111827", color:"#e5e7eb",
-  border:"1px solid #374151", borderRadius:16,
-  padding:"4px 10px", fontSize:12, display:"inline-flex", gap:8, alignItems:"center"
-};
-const row = (active:boolean): React.CSSProperties => ({
-  display:"flex", alignItems:"center", gap:10, padding:"8px 10px",
-  cursor:"pointer", background: active ? "#111827" : "transparent", borderRadius:6, color:"#e5e7eb"
-});
-const tickBox = (active:boolean): React.CSSProperties => ({
-  width:18, height:18, border:"1px solid #374151", borderRadius:4,
-  display:"inline-flex", alignItems:"center", justifyContent:"center",
-  background: active ? "#2563eb" : "transparent", color:"#fff", fontSize:12, lineHeight:1
-});
-const btn: React.CSSProperties = { padding:"8px 12px", background:"#3b82f6", color:"#fff", border:"1px solid #3b82f6", borderRadius:8, cursor:"pointer" };
 
-const LANGS = [
-  { id:"es", label:"Español" },
-  { id:"en", label:"English" },
-  { id:"uk", label:"Українська" },
-  { id:"de", label:"Deutsch" },
-  { id:"fr", label:"Français" },
-  { id:"it", label:"Italiano" },
-  { id:"pl", label:"Polski" },
-];
+const menuWrap: React.CSSProperties = {
+  position: "absolute",
+  top: 44,
+  left: 0,
+  right: 0,
+  background: "#0b1220",
+  color: "#e5e7eb",
+  border: "1px solid #1f2937",
+  borderRadius: 8,
+  boxShadow: "0 10px 20px rgba(0,0,0,.35)",
+  zIndex: 30,
+  maxHeight: 260,
+  overflowY: "auto",
+};
+
+const itemStyle = (active: boolean): React.CSSProperties => ({
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  padding: "10px 12px",
+  cursor: "pointer",
+  background: active ? "#111827" : "transparent",
+});
+
+const checkBox = (checked: boolean): React.CSSProperties => ({
+  width: 18,
+  height: 18,
+  borderRadius: 4,
+  border: checked ? "1px solid #3b82f6" : "1px solid #374151",
+  background: checked ? "#3b82f6" : "transparent",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: 12,
+});
 
 export default function MultiLangSelect({ selected, setSelected, error }: Props) {
   const [open, setOpen] = React.useState(false);
+  const wrapRef = React.useRef<HTMLDivElement | null>(null);
 
-  const toggle = (id: string) =>
-    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  // закриття кліком поза меню
+  React.useEffect(() => {
+    function onDown(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, []);
 
-  const label = selected.length
-    ? selected.map(id => LANGS.find(l => l.id === id)?.label ?? id).join(", ")
-    : "";
+  // закриття по Esc
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Escape") setOpen(false);
+  }
+
+  function toggle(id: string) {
+    setSelected(
+      selected.includes(id)
+        ? selected.filter((x) => x !== id)
+        : [...selected, id]
+    );
+  }
+
+  const selectedLabels = selected
+    .map((id) => LANGS.find((l) => l.id === id)?.label ?? id)
+    .join(", ");
+
+  const buttonText = selected.length ? selectedLabels : "Click to choose…";
 
   return (
-    <div style={box}>
-      <label style={{ color:"#cbd5e1", fontSize:14 }}>Select the translation languages</label>
+    <div style={{ position: "relative" }} ref={wrapRef} onKeyDown={onKeyDown}>
+      <label style={labelStyle}>Select the translation languages</label>
 
-      <input
-        data-field="language"
-        readOnly
-        onClick={() => setOpen(v => !v)}
-        placeholder="Click to choose…"
-        style={inputStyle(error)}
-        value={label}
-      />
+      {/* приховане поле для бекенда */}
+      <input type="hidden" name="language" value={selected.join(",")} />
 
-      {selected.length > 0 && (
-        <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
-          {selected.map(id => {
-            const l = LANGS.find(x => x.id === id)?.label ?? id;
-            return (
-              <span key={id} style={chip}>
-                {l}
-                <button
-                  type="button"
-                  onClick={() => toggle(id)}
-                  aria-label={`Remove ${l}`}
-                  style={{ background:"transparent", color:"#9ca3af", border:"none", cursor:"pointer", fontSize:14, lineHeight:1 }}>
-                  ×
-                </button>
-              </span>
-            );
-          })}
-        </div>
-      )}
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        style={btnStyle(!!error)}
+      >
+        {buttonText}
+      </button>
 
       {open && (
-        <div style={menuWrap}>
-          {LANGS.map(l => {
-            const active = selected.includes(l.id);
+        <div role="listbox" style={menuWrap}>
+          {LANGS.map((l) => {
+            const checked = selected.includes(l.id);
             return (
-              <div key={l.id} onClick={() => toggle(l.id)} style={row(active)}>
-                <span style={tickBox(active)}>{active ? "✓" : ""}</span>
+              <div
+                role="option"
+                aria-selected={checked}
+                key={l.id}
+                style={itemStyle(checked)}
+                onClick={() => toggle(l.id)}
+              >
+                <span style={checkBox(checked)}>{checked ? "✓" : ""}</span>
                 <span>{l.label}</span>
               </div>
             );
           })}
-          <div style={{ display:"flex", justifyContent:"flex-end", marginTop:6 }}>
-            <button type="button" onClick={() => setOpen(false)} style={btn}>Done</button>
-          </div>
         </div>
       )}
 
-      {error && <div style={{ color:"#ef4444", fontSize:12 }}>Please select at least one language</div>}
+      {error && (
+        <div style={{ color: "#ef4444", marginTop: 6, fontSize: 12 }}>
+          {error}
+        </div>
+      )}
     </div>
   );
 }
