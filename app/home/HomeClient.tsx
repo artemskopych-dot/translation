@@ -10,8 +10,8 @@ const main: React.CSSProperties   = { maxWidth:980, margin:"32px auto", padding:
 
 const card: React.CSSProperties   = { background:"#0b1220", border:"1px solid #1f2937", borderRadius:12, padding:20 };
 
-const row3: React.CSSProperties   = { display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:20, alignItems:"start" }; // 3 колонки в один ряд
-const row2: React.CSSProperties   = { display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, alignItems:"start" };     // 2 колонки в один ряд
+const row3: React.CSSProperties   = { display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:20, alignItems:"start" };
+const row2: React.CSSProperties   = { display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, alignItems:"start" };
 const col: React.CSSProperties    = { display:"flex", flexDirection:"column", gap:8 };
 
 const label: React.CSSProperties  = { display:"block", fontSize:14, color:"#9CA3AF" };
@@ -27,7 +27,7 @@ const btnTab = (active:boolean): React.CSSProperties => ({
 
 function HelpHover({ src, alt = "help" }: { src: string; alt?: string }) {
   const wrap: React.CSSProperties = { position:"relative", display:"inline-block" };
-  const q: React.CSSProperties    = { width:22, height:22, border:"1px solid #1f2937", borderRadius:9999, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:12, color:"#9CA3AF", cursor:"help", background:"#0b1220" };
+  const q: React.CSSProperties    = { width:22, height:22, border:"1px solid #1f2937", borderRadius:9999, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:12, color:"#9CA3AF", cursor:"pointer", background:"#0b1220" };
   const img: React.CSSProperties  = { position:"absolute", top:"120%", left:0, display:"none", background:"#000", border:"1px solid #1f2937", borderRadius:8, padding:6, zIndex:50, maxWidth:360 };
   return (
     <span style={wrap} className="help-hover">
@@ -43,7 +43,7 @@ function HelpHover({ src, alt = "help" }: { src: string; alt?: string }) {
 export default function HomeClient() {
   const [activeTab, setActiveTab] = useState<"translation"|"review">("translation");
 
-  // поля форми
+  // поля
   const [projectName, setProjectName] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [selectedLangs, setSelectedLangs] = useState<string[]>([]);
@@ -52,7 +52,7 @@ export default function HomeClient() {
   const [origLangCol, setOrigLangCol] = useState("");
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
 
-  // гейт доступу по токену
+  // гейт по токену
   const [token, setToken] = useState<string | null>(null);
   useEffect(() => { try { setToken(localStorage.getItem("token")); } catch {} }, []);
   const gated = !!token;
@@ -78,16 +78,6 @@ export default function HomeClient() {
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
-    const payload = {
-      projectName,
-      description: desc,
-      language: selectedLangs.join(","), // мультивибір
-      codeIdCol,
-      origLangCol,
-      fileName: file?.name || ""
-    };
-    console.log("START PAYLOAD", payload);
-
     setActiveTab("review");
   }
 
@@ -108,21 +98,19 @@ export default function HomeClient() {
         {activeTab === "translation" && (
           <form onSubmit={onStart} style={card}>
 
-            {/* Ряд 1: Project name / Upload file / Languages */}
+            {/* Ряд 1: Project / Upload / Languages */}
             <div style={row3}>
-              {/* Project name */}
               <div style={col}>
                 <label style={label}>Enter the project name</label>
                 <input
                   style={i(!!errors.projectName)}
                   placeholder="Type here..."
                   value={projectName}
-                  onChange={e=>setProjectName(e.target.value)}
+                  onChange={(e)=>setProjectName(e.target.value)}
                 />
                 {errors.projectName && <div style={errText}>Required</div>}
               </div>
 
-              {/* Upload file — лише кнопка, ім'я файлу всередині */}
               <div style={col}>
                 <label style={label}>Upload file</label>
                 <button type="button" onClick={chooseFile} style={{...baseInput, cursor:"pointer", textAlign:"left"}}>
@@ -133,12 +121,11 @@ export default function HomeClient() {
                   type="file"
                   accept=".xlsx,.xls,.csv"
                   style={{display:"none"}}
-                  onChange={e=>setFile(e.target.files?.[0] || null)}
+                  onChange={(e)=>setFile(e.target.files?.[0] || null)}
                 />
                 {errors.file && <div style={errText}>Required</div>}
               </div>
 
-              {/* Languages — мультивибір з галочками */}
               <div style={col}>
                 <label style={label}>Select the translation languages</label>
                 <MultiLangSelect
@@ -146,26 +133,27 @@ export default function HomeClient() {
                   setSelected={setSelectedLangs}
                   error={errors.language}
                 />
+                {errors.language && <div style={errText}>Select at least one</div>}
               </div>
             </div>
 
             <div style={{height:20}} />
 
-            {/* Опис — окремим блоком під першим рядом */}
+            {/* Опис */}
             <div style={{display:"flex", flexDirection:"column", gap:8}}>
               <label style={label}>Enter a description of the game with its characteristics and age restrictions.</label>
               <textarea
                 style={{...i(!!errors.desc), minHeight:120}}
                 placeholder="Type here..."
                 value={desc}
-                onChange={e=>setDesc(e.target.value)}
+                onChange={(e)=>setDesc(e.target.value)}
               />
               {errors.desc && <div style={errText}>Required</div>}
             </div>
 
             <div style={{height:20}} />
 
-            {/* Ряд 2: два мапінги + знак питання з картинкою по hover */}
+            {/* Ряд 2: мапінги + "?" з картинкою по hover */}
             <div style={row2}>
               <div style={col}>
                 <label style={label}>File mapping — Copy “code Id” column name here</label>
@@ -174,7 +162,7 @@ export default function HomeClient() {
                     style={i(!!errors.codeId)}
                     placeholder="Type here..."
                     value={codeIdCol}
-                    onChange={e=>setCodeIdCol(e.target.value)}
+                    onChange={(e)=>setCodeIdCol(e.target.value)}
                   />
                   <HelpHover src="/Без імені1111111 (1).png" />
                 </div>
@@ -188,16 +176,13 @@ export default function HomeClient() {
                     style={i(!!errors.origLang)}
                     placeholder="Type here..."
                     value={origLangCol}
-                    onChange={e=>setOrigLangCol(e.target.value)}
+                    onChange={(e)=>setOrigLangCol(e.target.value)}
                   />
                   <HelpHover src="/Без імені1111111 (1).png" />
                 </div>
                 {errors.origLang && <div style={errText}>Required</div>}
               </div>
             </div>
-
-            {/* приховане поле для бекенду з CSV мов */}
-            <input type="hidden" name="language" value={selectedLangs.join(",")} />
 
             <div style={{marginTop:20, display:"flex", justifyContent:"flex-end"}}>
               <button type="submit" style={btnPrimary}>Start</button>
@@ -207,7 +192,6 @@ export default function HomeClient() {
 
         {activeTab === "review" && (
           <div style={card}>
-            {/* TODO: Review UI */}
             <div style={{color:"#9CA3AF", fontSize:14}}>Review tab placeholder.</div>
           </div>
         )}
