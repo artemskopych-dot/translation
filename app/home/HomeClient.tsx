@@ -1,4 +1,5 @@
-﻿"use client";
+﻿import MultiLangSelect from "../components/MultiLangSelect";
+"use client";
 import React, { useEffect, useRef, useState } from "react";
 
 const wrap: React.CSSProperties = { minHeight:"100vh", background:"#0b0f1a", color:"#e5e7eb", boxSizing:"border-box" };
@@ -285,4 +286,5 @@ export default function HomeClient() {
     </div>
   );
 }
+
 
