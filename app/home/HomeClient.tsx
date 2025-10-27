@@ -82,7 +82,47 @@ export default function HomeClient() {
     setActiveTab("review");
   }
 
-  return (
+    // --- auto-added: Start button handler ---
+  const handleStart = async (e?: any) => {
+    e?.preventDefault?.();
+    const errs: any = {};
+
+    const name = (document.getElementById("project-name") as HTMLInputElement)?.value?.trim() || "";
+    const desc = (document.getElementById("project-desc") as HTMLTextAreaElement)?.value?.trim() || "";
+    const codeIdCol = (document.getElementById("code-id-col") as HTMLInputElement)?.value?.trim() || "";
+    const origLangCol = (document.getElementById("orig-lang-col") as HTMLInputElement)?.value?.trim() || "";
+    const fileEl = document.getElementById("file-input") as HTMLInputElement | null;
+    const file = fileEl?.files?.[0] || null;
+
+    // очікуємо, що selectedLangs вже є у стані (мультивибір мов)
+    if (!name) errs.name = true;
+    if (!desc) errs.description = true;
+    if (!Array.isArray(selectedLangs) || selectedLangs.length === 0) errs.language = true;
+    if (!codeIdCol) errs.codeIdCol = true;
+    if (!origLangCol) errs.origLangCol = true;
+    if (!file) errs.file = true;
+
+    setErrors?.((p: any) => ({ ...p, ...errs }));
+    if (Object.keys(errs).length > 0) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    // Тимчасово: просто переходимо на Review і кешуємо вибір.
+    try {
+      localStorage.setItem("current_project", JSON.stringify({
+        name, desc,
+        languages: selectedLangs,
+        codeIdCol, origLangCol,
+        fileName: file?.name || ""
+      }));
+    } catch {}
+
+    // Перемикаємо вкладку
+    try { setActiveTab?.("review"); } catch {}
+  };
+  // --- end of auto-added ---
+    return (
     <div style={wrap}>
       <header style={header}>
         <div style={logoRow}>
@@ -103,8 +143,7 @@ export default function HomeClient() {
             <div style={row3}>
               <div style={col}>
                 <label style={label}>Enter the project name</label>
-                <input
-                  style={i(!!errors.projectName)}
+                <input id="project-name"                   style={i(!!errors.projectName)}
                   placeholder="Type here..."
                   value={projectName}
                   onChange={(e)=>setProjectName(e.target.value)}
@@ -117,12 +156,11 @@ export default function HomeClient() {
                 <button type="button" onClick={chooseFile} style={{...baseInput, cursor:"pointer", textAlign:"left"}}>
                   {file ? shortName(file.name) : "Choose file"}
                 </button>
-                <input
-                  ref={fileInput}
+                <input ref={fileInput}
                   type="file"
                   accept=".xlsx,.xls,.csv"
                   style={{display:"none"}}
-                  onChange={(e)=>setFile(e.target.files?.[0] || null)}
+                  onChange={(e)= id="file-input">setFile(e.target.files?.[0] || null)}
                 />
                 {errors.file && <div style={errText}>Required</div>}
               </div>
@@ -143,8 +181,7 @@ export default function HomeClient() {
             {/* Опис */}
             <div style={{display:"flex", flexDirection:"column", gap:8}}>
               <label style={label}>Enter a description of the game with its characteristics and age restrictions.</label>
-              <textarea
-                style={{...i(!!errors.desc), minHeight:120}}
+              <textarea id="project-desc"                 style={{...i(!!errors.desc), minHeight:120}}
                 placeholder="Type here..."
                 value={desc}
                 onChange={(e)=>setDesc(e.target.value)}
@@ -159,8 +196,7 @@ export default function HomeClient() {
               <div style={col}>
                 <label style={label}>File mapping — Copy “code Id” column name here</label>
                 <div style={{display:"flex", alignItems:"center", gap:8}}>
-                  <input
-                    style={i(!!errors.codeId)}
+                  <input id="code-id-col"                     style={i(!!errors.codeId)}
                     placeholder="Type here..."
                     value={codeIdCol}
                     onChange={(e)=>setCodeIdCol(e.target.value)}
@@ -173,8 +209,7 @@ export default function HomeClient() {
               <div style={col}>
                 <label style={label}>Copy “original language id” column…</label>
                 <div style={{display:"flex", alignItems:"center", gap:8}}>
-                  <input
-                    style={i(!!errors.origLang)}
+                  <input id="orig-lang-col"                     style={i(!!errors.origLang)}
                     placeholder="Type here..."
                     value={origLangCol}
                     onChange={(e)=>setOrigLangCol(e.target.value)}
@@ -186,7 +221,7 @@ export default function HomeClient() {
             </div>
 
             <div style={{marginTop:20, display:"flex", justifyContent:"flex-end"}}>
-              <button type="submit" style={btnPrimary}>Start</button>
+              <button type="submit" style={btnPrimary} id="start-btn" onClick={handleStart}>Start</button>
             </div>
           </form>
         )}
@@ -200,3 +235,4 @@ export default function HomeClient() {
     </div>
   );
 }
+
