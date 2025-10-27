@@ -122,6 +122,67 @@ export default function HomeClient() {
     try { setActiveTab?.("review"); } catch {}
   };
   // --- end of auto-added ---
+    
+const handleStart = async (e?: any) => {
+  e?.preventDefault?.();
+  const errs: any = {};
+
+  const name = (document.getElementById("project-name") as HTMLInputElement)?.value?.trim() || "";
+  const desc = (document.getElementById("project-desc") as HTMLTextAreaElement)?.value?.trim() || "";
+  const codeIdCol = (document.getElementById("code-id-col") as HTMLInputElement)?.value?.trim() || "";
+  const origLangCol = (document.getElementById("orig-lang-col") as HTMLInputElement)?.value?.trim() || "";
+  const fileEl = document.getElementById("file-input") as HTMLInputElement | null;
+  const file = fileEl?.files?.[0] || null;
+
+  if (!name) errs.name = true;
+  if (!desc) errs.description = true;
+  if (!Array.isArray(selectedLangs) || selectedLangs.length === 0) errs.language = true;
+  if (!codeIdCol) errs.codeIdCol = true;
+  if (!origLangCol) errs.origLangCol = true;
+  if (!file) errs.file = true;
+
+  setErrors?.((p: any) => ({ ...p, ...errs }));
+  if (Object.keys(errs).length > 0) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  // --- API call: create project ---
+  const api = (process.env.NEXT_PUBLIC_PROJECTS_URL as string) || "";
+  const token = (typeof window !== "undefined" && localStorage.getItem("auth_token")) || "";
+
+  try {
+    const res = await fetch(api, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        ...(token ? { "authorization": `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({
+        name,
+        description: desc,
+        languages: selectedLangs,    // масив
+        codeIdCol,
+        origLangCol,
+        fileName: file?.name || ""
+      })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      console.error("Create project failed:", data);
+      alert(data?.error || "Create project failed");
+      return;
+    }
+
+    // Збережемо локально для зручності
+    try { localStorage.setItem("current_project_id", data.project_id); } catch {}
+    try { setActiveTab?.("review"); } catch {}
+  } catch (err) {
+    console.error(err);
+    alert("Network error while creating project");
+  }
+};
     return (
     <div style={wrap}>
       <header style={header}>
@@ -160,7 +221,7 @@ export default function HomeClient() {
                   type="file"
                   accept=".xlsx,.xls,.csv"
                   style={{display:"none"}}
-                  onChange={(e)= id="file-input">setFile(e.target.files?.[0] || null)}
+                  onChange={(e)= id="file-input"> setFile(e.target.files?.[0] || null)}
                 />
                 {errors.file && <div style={errText}>Required</div>}
               </div>
@@ -235,4 +296,5 @@ export default function HomeClient() {
     </div>
   );
 }
+
 
