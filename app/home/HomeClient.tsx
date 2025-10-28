@@ -84,8 +84,61 @@ export default function HomeClient() {
 
     // --- auto-added: Start button handler ---
   const handleStart = async (e?: any) => {
-    e?.preventDefault?.();
-    const errs: any = {};
+  e?.preventDefault?.();
+  const errs: any = {};
+
+  const name = (document.getElementById("project-name") as HTMLInputElement)?.value?.trim() || "";
+  const desc = (document.getElementById("project-desc") as HTMLTextAreaElement)?.value?.trim() || "";
+  const codeIdCol = (document.getElementById("code-id-col") as HTMLInputElement)?.value?.trim() || "";
+  const origLangCol = (document.getElementById("orig-lang-col") as HTMLInputElement)?.value?.trim() || "";
+  const fileEl = document.getElementById("file-input") as HTMLInputElement | null;
+  const file = fileEl?.files?.[0] || null;
+
+  if (!name) errs.name = true;
+  if (!desc) errs.description = true;
+  if (!Array.isArray(selectedLangs) || selectedLangs.length === 0) errs.language = true;
+  if (!codeIdCol) errs.codeIdCol = true;
+  if (!origLangCol) errs.origLangCol = true;
+  if (!file) errs.file = true;
+
+  try { setErrors?.((p: any) => ({ ...p, ...errs })); } catch {}
+  if (Object.keys(errs).length > 0) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  const url = process.env.NEXT_PUBLIC_PROJECTS_URL!;
+  const token = (typeof window !== "undefined")
+    ? (localStorage.getItem("auth_token") || localStorage.getItem("jwt") || "")
+    : "";
+
+  const headers: Record<string,string> = { "content-type":"application/json" };
+  if (token) headers["authorization"] = `Bearer ${token}`;
+
+  const resp = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      name,
+      description: desc,
+      languages: selectedLangs,
+      codeIdCol,
+      origLangCol,
+      fileName: file?.name || ""
+    })
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(()=>({}));
+    console.error("Create project failed", err);
+    try { setErrors?.((p:any)=>({ ...p, server:true })); } catch {}
+    return;
+  }
+
+  const ok = await resp.json();
+  try { localStorage.setItem("current_project_id", ok.project_id); } catch {}
+  try { setActiveTab?.("review"); } catch {}
+};;
 
     const name = (document.getElementById("project-name") as HTMLInputElement)?.value?.trim() || "";
     const desc = (document.getElementById("project-desc") as HTMLTextAreaElement)?.value?.trim() || "";
@@ -256,6 +309,7 @@ export default function HomeClient() {
     </div>
   );
 }
+
 
 
 
