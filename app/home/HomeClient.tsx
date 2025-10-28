@@ -234,7 +234,7 @@ export default function HomeClient() {
                   type="file"
                   accept=".xlsx,.xls,.csv"
                   style={{display:"none"}}
-                  onChange={(e)= id="file-input"> setFile(e.target.files?.[0] || null)}
+                  id="file-input" onChange={(e)= id="file-input"> setFile(e.target.files?.[0] || null)}
                 />
                 {errors.file && <div style={errText}>Required</div>}
               </div>
@@ -309,6 +309,7 @@ export default function HomeClient() {
     </div>
   );
 }
+
 
 
 
