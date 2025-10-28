@@ -234,7 +234,7 @@ export default function HomeClient() {
                   type="file"
                   accept=".xlsx,.xls,.csv"
                   style={{display:"none"}}
-                  id="file-input" onChange={(e)= id="file-input"> setFile(e.target.files?.[0] || null)}
+                  id="file-input" id="file-input" onChange={(e)= id="file-input"> setFile(e.target.files?.[0] || null)}
                 />
                 {errors.file && <div style={errText}>Required</div>}
               </div>
@@ -295,7 +295,7 @@ export default function HomeClient() {
             </div>
 
             <div style={{marginTop:20, display:"flex", justifyContent:"flex-end"}}>
-              <button type="submit" style={btnPrimary} id="start-btn" onClick={handleStart}>Start</button>
+              <button type="submit" style={btnPrimary} id="start-btn" >Start</button>
             </div>
           </form>
         )}
@@ -309,6 +309,7 @@ export default function HomeClient() {
     </div>
   );
 }
+
 
 
 
