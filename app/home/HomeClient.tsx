@@ -230,12 +230,14 @@ export default function HomeClient() {
                 <button type="button" onClick={chooseFile} style={{...baseInput, cursor:"pointer", textAlign:"left"}}>
                   {file ? shortName(file.name) : "Choose file"}
                 </button>
-                <input ref={fileInput}
-                  type="file"
-                  accept=".xlsx,.xls,.csv"
-                  style={{display:"none"}}
-                  id="file-input" id="file-input" onChange={(e)= id="file-input"> setFile(e.target.files?.[0] || null)}
-                />
+                <input
+  ref={fileInput}
+  id="file-input"
+  type="file"
+  accept=".xlsx,.xls,.csv"
+  style={{display:"none"}}
+  onChange={(e)=> setFile(e.target.files?.[0] || null)}
+/>
                 {errors.file && <div style={errText}>Required</div>}
               </div>
 
@@ -309,6 +311,7 @@ export default function HomeClient() {
     </div>
   );
 }
+
 
 
 
